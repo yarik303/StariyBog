@@ -1,4 +1,10 @@
-# StariyBog (Horizon native mod)
+# StariyBog, Horizon hack client
+
+# THIS PROJECT IS COMPLETELY VIBE CODED, using opencode, qoder and workbuddy, using models like deepseek 4.1 flash and HY4
+
+This was originally a personal project. But I decided to abandoned it because the storage is tight, and I don't have fun making it. Go and paste this client.
+
+Original description:
 
 A Right Shift module menu for Horizon with tabbed categories. The first tab is **Render**, with **FullBright**
 (see in the dark with a gamma ramp or a night vision effect), **ArrayList** (the enabled modules in the top-right
