@@ -1,0 +1,10 @@
+[package]
+name = "horizon-mod-clickgui"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+publish = false
+description = "StariyBog: a Right Shift module menu for Horizon with FullBright, Zoom and an ArrayList."
+
+[lib]
+path = "mixins/clickgui/runtime.rs"
