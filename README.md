@@ -1,8 +1,14 @@
 # StariyBog, Horizon hack client
 
+![Logo](images/minceraft(1).png)
+
 # THIS PROJECT IS COMPLETELY VIBE CODED, using opencode, qoder and workbuddy, using models like deepseek 4.1 flash and HY4. THIS CLIENT (probably) will not be updated, issue will not be resolved.
 
 This was originally a personal project. But I decided to abandoned it because the storage is tight, and I don't have fun making it. Go and paste this client.
+
+Screenshot of the UI
+
+![Screenshot of the UI](images/2026-11-13_22-05.png)
 
 Original description:
 
