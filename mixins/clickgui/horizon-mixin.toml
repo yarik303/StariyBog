@@ -1,0 +1,1187 @@
+[mod]
+id = "clickgui"
+version = "0.1.0"
+priority = 100
+
+# The commit the mod was tested on. It has to hook one game function
+# (`window_event`, to take input while the GUI is open), so it is pinned.
+[compatibility]
+horizon_revision = "2ebf00a0281c592f79191e76fce0e7d522c6f425"
+
+# The registry, settings model and GUI state.
+[[module]]
+id = "runtime"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui"
+source = "runtime.rs"
+
+# NoRender's particle switch: the game sets it, the render crate's particle
+# engine reads it, and the two are different crates.
+[[module]]
+id = "norender_state"
+file = "crates/horizon-client-render/src/lib.rs"
+name = "clickgui_norender"
+visibility = "pub"
+source = "norender_state.rs"
+
+# Google Sans rendering: the masks, the uploader and the entry point.
+[[module]]
+id = "font"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_font"
+source = "font.rs"
+
+[[module]]
+id = "font_data"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_font_data"
+source = "font_data.rs"
+
+[[module]]
+id = "font_atlas"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_font_atlas"
+source = "font_atlas.rs"
+
+# The immediate-mode drawing and input layer.
+[[module]]
+id = "ui"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_ui"
+source = "ui.rs"
+
+# The FullBright module's tick.
+[[module]]
+id = "fullbright"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_fullbright"
+source = "fullbright.rs"
+
+# The clickgui timer: the per-tick multiplier the Speed modes request. It
+# lives in the clock's library crate so the clock itself can read it.
+[[module]]
+id = "timer"
+file = "crates/horizon-client/src/clock.rs"
+name = "clickgui_timer"
+visibility = "pub"
+source = "timer.rs"
+
+# The Timer module's tick: the multiplier its settings ask the clock for.
+[[module]]
+id = "timer_module"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_timer_module"
+source = "timer_module.rs"
+
+# The Speed module's terrain mode: a per-tick scale on the player's travel
+# input, the equivalent of Alan's StrafeEvent friction multiplier.
+[[module]]
+id = "terrain"
+file = "crates/horizon-client/src/motion.rs"
+name = "clickgui_terrain"
+visibility = "pub"
+source = "terrain_scaling.rs"
+
+# The chat commands, the settings page's buttons and the Options > Mods row.
+# Their bodies live in `game.rs` modules, not in the hook helpers: the helpers
+# are inlined into `native_hooks`, which has to stay free of macros (Horizon's
+# `hook_points_stay_hookable`), and `format!` is one.
+[[module]]
+id = "commands"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_commands"
+visibility = "pub(crate)"
+source = "command_impl.rs"
+
+[[module]]
+id = "clicks"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_clicks"
+visibility = "pub(crate)"
+source = "click_impl.rs"
+
+[[module]]
+id = "listing"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_listing"
+visibility = "pub(crate)"
+source = "list_impl.rs"
+
+[[module]]
+id = "settings_page"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_settings"
+visibility = "pub(crate)"
+source = "settings_impl.rs"
+
+# The enabled-module list in the top-right corner.
+[[module]]
+id = "arraylist"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_arraylist"
+source = "arraylist.rs"
+
+# The Watermark: name, FPS and ping in a corner.
+[[module]]
+id = "watermark"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_watermark"
+source = "watermark.rs"
+
+# The AutoTool module's tick (a port of LiquidBounce's).
+[[module]]
+id = "autotool"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_autotool"
+source = "autotool.rs"
+
+# The AutoWeapon module's tick (a port of LiquidBounce's).
+[[module]]
+id = "autoweapon"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_autoweapon"
+source = "autoweapon.rs"
+
+# OffHand: keeps a totem, a gapple or a crystal in the off hand, swapping it in
+# through the menu engine and eating a gapple with the game's own use path. The
+# body is `pub(super)` for the same reason as the others — `Game` is private to
+# `crate::game`.
+[[module]]
+id = "offhand"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_offhand"
+visibility = "pub(crate)"
+source = "offhand.rs"
+
+# AutoArmor: puts the best armour the player carries onto their body, swapping
+# through the same menu engine. It lives beside OffHand and is `pub(super)` for
+# the same reason — `Game` is private to `crate::game`.
+[[module]]
+id = "autoarmor"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_autoarmor"
+visibility = "pub(crate)"
+source = "autoarmor.rs"
+
+# AutoXP: experience bottles thrown at the player's feet. It lives in
+# `game/remote.rs` because its packet-only hotbar swap has to reach
+# `Remote::carried` and `Session` directly — `Game::send` would answer a
+# `UseItem` with the player's own selected slot and undo the swap.
+[[module]]
+id = "autoxp"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_autoxp"
+visibility = "pub(crate)"
+source = "autoxp.rs"
+
+# HoleFill: sealed holes filled with a packet-only UseItemOn. It lives in
+# `game/remote.rs` for the same reason as AutoXP — its silent hotbar switch has
+# to keep `Game::selected`, `SetCarriedItem` and `Remote::carried` in step.
+[[module]]
+id = "holefill"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_holefill"
+visibility = "pub(crate)"
+source = "holefill.rs"
+
+# Reach: the entity interaction range, through a transient attribute modifier.
+# It lives in `game/remote.rs` for the same reason as the others — `Game` and
+# its attribute helpers are private to `crate::game`.
+[[module]]
+id = "reach"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_reach"
+visibility = "pub(crate)"
+source = "reach.rs"
+
+# AutoClicker: the game's own click queue, pressed from the tick. It lives in
+# `game/remote.rs` because `Remote::input` is private to that module.
+[[module]]
+id = "autoclicker"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_autoclicker"
+visibility = "pub(crate)"
+source = "autoclicker.rs"
+
+# AimAssist: target selection and the view rotation. It lives in
+# `game/remote.rs` for `remote_player_names` and the private `clip_ray` /
+# `mob_hit_within` helpers, all of them visible only inside `crate::game`.
+[[module]]
+id = "aimassist"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_aimassist"
+visibility = "pub(crate)"
+source = "aimassist.rs"
+
+# Surround: shape-aware perimeter and support-face placements. It lives in
+# `game/remote.rs` for the same reason as HoleFill — the silent hotbar switch
+# has to keep `Game::selected` and `Remote::carried` in step with the packets.
+[[module]]
+id = "surround"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_surround"
+visibility = "pub(crate)"
+source = "surround.rs"
+
+# CrystalAura: crystal damage scoring, placement and breaking. It lives in
+# `game/remote.rs` because it reads the private crystal list and calls the
+# private `seen_percent`, and needs the silent hotbar switch.
+[[module]]
+id = "crystalaura"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_crystalaura"
+visibility = "pub(crate)"
+source = "crystalaura.rs"
+
+# The NoFall module (a port of LiquidBounce's): movement packets, the
+# fall-distance reset and the modes' extra packets. It lives beside the
+# remote client it follows, so it can use that client's use-packet paths.
+[[module]]
+id = "nofall"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_nofall"
+source = "nofall.rs"
+
+# The packet-spoofing chain and the mark that ties it to the tick's own
+# movement packet (see `spoof.rs`). It lives beside the movement modules whose
+# `spoof` entries it chains; `pub(crate)` because the tick hook that clears a
+# left-over mark runs from `native_hooks`.
+[[module]]
+id = "spoof"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_spoof"
+visibility = "pub(crate)"
+source = "spoof.rs"
+
+# Criticals (a port of LiquidBounce's and the other clients'): fake position
+# packets before an attack, plus the movement-packet modes. It lives beside
+# the remote client, like NoFall.
+[[module]]
+id = "criticals"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_criticals"
+source = "criticals.rs"
+
+# Scaffold: target selection and block placement, run just before the
+# movement packet is built so it can rotate silently through the position
+# sender. It lives beside the remote client, like NoFall and Criticals.
+[[module]]
+id = "scaffold"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_scaffold"
+source = "scaffold.rs"
+
+# ChestStealer: empties chest and furnace screens through the menu engine, and
+# draws its highlight and progress bar over the open screen.
+[[module]]
+id = "cheststealer"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_cheststealer"
+source = "cheststealer.rs"
+
+# Velocity: reads the server's knockback packets and rewrites the applied
+# velocity before the tick's physics move. It lives beside the remote client,
+# like NoFall, Criticals and Scaffold.
+[[module]]
+id = "velocity"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_velocity"
+source = "velocity.rs"
+
+# Speed: the tick that shapes the player's velocity before the physics, the
+# post-physics snapshot that spots knockbacks, the setback hook and the
+# movement-packet rewrite. It lives beside the remote client, like NoFall.
+[[module]]
+id = "speed"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_speed"
+source = "speed.rs"
+
+# Step: the tick that raises the step height and starts the jump sequences,
+# the post-physics step confirmation that sends the fake positions, and the
+# movement-packet rewrite. It lives beside the remote client, like Speed.
+[[module]]
+id = "step"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_step"
+source = "step.rs"
+
+# Fly: the tick that shapes the player's velocity before the physics, the
+# packet stage that sends the modes' extra positions, the post-physics snapshot
+# that spots server velocities, the explosion flag and the setback watcher. It
+# lives beside the remote client, like Speed and Step.
+[[module]]
+id = "fly"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_fly"
+source = "fly.rs"
+
+# Phase: the tick's post-physics position, which the movement packet then
+# carries. It lives beside the remote client, like Speed and Step.
+[[module]]
+id = "phase"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_phase"
+source = "phase.rs"
+
+# FastBreak: LiquidBounce's and Alan's fast breaking. The stored progress and
+# the destroy delay live in the remote client's mining state, so this lives
+# beside it, like NoFall: the head of `remote_mining` applies the mode before
+# the tick's progress lands, and AbortAnother rides the STOP-DESTROY send.
+[[module]]
+id = "fastbreak"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_fastbreak"
+source = "fastbreak.rs"
+
+# NameTags: player and dropped-item tags, drawn with the HUD.
+[[module]]
+id = "nametags"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_nametags"
+source = "nametags.rs"
+
+# ESP: dashed entity-box outlines, drawn with the HUD.
+[[module]]
+id = "esp"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_esp"
+source = "esp.rs"
+
+# Tracers: lines from the view point to players and dropped items.
+[[module]]
+id = "tracers"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_tracers"
+source = "tracers.rs"
+
+# Chams: the filled figure and the outline decision, kept out of the two hook
+# helpers so each of those stays a single call. Its entries are `pub(super)`,
+# like the other modules' bodies: `Game` is private to `crate::game`.
+[[module]]
+id = "chams"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_chams"
+visibility = "pub(crate)"
+source = "chams.rs"
+
+# ViewModel: the first-person hand transform. The body is `pub(super)` for the
+# same reason as the others — `Game` is private to `crate::game`.
+[[module]]
+id = "viewmodel"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_viewmodel"
+visibility = "pub(crate)"
+source = "viewmodel.rs"
+
+# Animations: the swing's duration in the hand's own state, the extra arc on the
+# pose, and the use animation. The body is `pub(super)` for the same reason as
+# the others — `Game` is private to `crate::game`.
+[[module]]
+id = "animations"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_animations"
+visibility = "pub(crate)"
+source = "animations.rs"
+
+# Ambience: the world's day time and weather, and the frame's fog. The body is
+# `pub(super)` for the same reason as the others — `Game` is private to
+# `crate::game`.
+[[module]]
+id = "ambience"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_ambience"
+visibility = "pub(crate)"
+source = "ambience.rs"
+
+# Blink: the movement chain's held packets. The body is `pub(super)` for the
+# same reason as the others — `Game` is private to `crate::game`.
+[[module]]
+id = "blink"
+file = "crates/horizon-client/src/game.rs"
+name = "clickgui_blink"
+visibility = "pub(crate)"
+source = "blink.rs"
+
+# The Watermark's ping: a real round trip through the F3 network chart's probe.
+[[module]]
+id = "ping"
+file = "crates/horizon-client/src/game/remote.rs"
+name = "clickgui_ping"
+source = "ping.rs"
+
+# The newest sample of the ping logger (its deque is private to the module).
+[[module]]
+id = "ping_sample"
+file = "crates/horizon-client/src/debug_chart.rs"
+name = "clickgui_ping_sample"
+source = "ping_sample.rs"
+
+# The title screen's logo and the bytes it is decoded from. They live in the
+# render crate because the hook below cannot follow `Title::draw`'s macros.
+[[module]]
+id = "title_logo"
+file = "crates/horizon-client-render/src/hud.rs"
+name = "clickgui_title_logo"
+source = "title_logo.rs"
+
+[[module]]
+id = "title_data"
+file = "crates/horizon-client-render/src/hud.rs"
+name = "clickgui_title_data"
+source = "title_data.rs"
+
+# Input: toggle the GUI and consume input while it is open. The app's
+# dispatcher, not the game's own handler: its body has no macros, so this
+# bundle also applies with older horizon-mixins versions.
+[[injection]]
+id = "window"
+kind = "HEAD"
+cancellable = true
+target = "horizon_client::game::<App as ApplicationHandler>::window_event"
+helper = "window.rs"
+bindings = [
+  { name = "app", ty = "&mut crate::game::App", value = "&mut *self" },
+  { name = "event", ty = "&winit::event::WindowEvent", value = "&event" },
+]
+
+# The timer scales `DeltaTracker.Timer`'s per-frame delta ticks. The clock
+# itself, its virtual time and the UI/render frame times keep their real
+# length; only how many ticks a frame yields changes.
+[[injection]]
+id = "timer_delta"
+kind = "MODIFY_EXPRESSION_VALUE"
+target = "horizon_client_lib::clock::Timer::advance_game_time"
+selector = "(current_ms - self.last_ms) as f32"
+ordinal = 0
+require = 1
+helper = "timer_delta.rs"
+bindings = [
+  { name = "delta", ty = "f32", value = "$value" },
+]
+
+# The terrain mode scales the travel input the movement tick is about to use,
+# where Alan's StrafeEvent scales the friction speed instead.
+[[injection]]
+id = "terrain_input"
+kind = "MODIFY_ARG"
+target = "horizon_client_lib::motion::MotionWorld<'_,'_,'_>::travel_in_air"
+selector = "living_air::travel_in_air"
+require = 1
+ordinal = 0
+argument = 1
+helper = "terrain_input.rs"
+bindings = [
+  { name = "input", ty = "horizon_core::geometry::Vec3", value = "$value" },
+]
+
+# Module ticks (FullBright's ramp and effect).
+[[injection]]
+id = "tick"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_tick"
+helper = "tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Scaffold's Eagle mode: the movement input is read and not yet applied, which
+# is where the reference's MoveInputEvent sets its sneak. Setting it here counts
+# for this tick; the key set is consumed by the next tick's physics.
+[[injection]]
+id = "scaffold_eagle"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_movement_input"
+helper = "scaffold_eagle.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "sneak", ty = "&mut bool", value = "&mut *sneak" },
+]
+
+# The attack click, for AutoWeapon's OnAttack. It has to see the click before
+# the game does, since a server world consumes it before `native_tick`.
+[[injection]]
+id = "key"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_key"
+helper = "key.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "key", ty = "&str", value = "key" },
+  { name = "pressed", ty = "bool", value = "pressed" },
+]
+
+# Zoom's held factor, through the same native zoom hook Horizon's own Zoom
+# mod uses. The window hook above turns the bind key into the held state; this
+# hands it to the camera.
+[[injection]]
+id = "zoom_view"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_zoom"
+helper = "zoom_view.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "zoom", ty = "&mut Option<crate::game::native_hooks::NativeZoom>", value = "&mut *zoom" },
+]
+
+# While Zoom's key is held, the wheel zooms instead of scrolling the hotbar.
+[[injection]]
+id = "zoom_wheel"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_wheel"
+helper = "zoom_wheel.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+  { name = "steps", ty = "f32", value = "steps" },
+  { name = "claimed", ty = "&mut bool", value = "&mut *claimed" },
+]
+
+# HoleESP's boxes, as the game's own world primitives: real 3D geometry with
+# the world's depth, or seen through walls.
+[[injection]]
+id = "holeesp_draw"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_world_primitives"
+helper = "holeesp.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "_partial", ty = "f32", value = "partial" },
+  { name = "camera", ty = "[f64; 3]", value = "camera" },
+  { name = "primitives", ty = "&mut horizon_client::world_primitives::WorldPrimitives", value = "&mut *primitives" },
+]
+
+# Chams' filled figures, through the same world-primitive hook HoleESP uses.
+[[injection]]
+id = "chams_draw"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_world_primitives"
+helper = "chams_draw.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "partial", ty = "f32", value = "partial" },
+  { name = "camera", ty = "[f64; 3]", value = "camera" },
+  { name = "primitives", ty = "&mut horizon_client::world_primitives::WorldPrimitives", value = "&mut *primitives" },
+]
+
+# NoRender's HUD layers: the crosshair, boss bars, the scoreboard, titles,
+# the held item's name and the potion icons.
+[[injection]]
+id = "norender_layer"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_gui_layer_pre"
+helper = "norender_layer.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "layer", ty = "&str", value = "layer" },
+  { name = "canceled", ty = "&mut bool", value = "&mut *canceled" },
+]
+
+# NoRender's toasts, before they are queued.
+[[injection]]
+id = "norender_toast"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_toast_add"
+helper = "norender_toast.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "cancelled", ty = "&mut bool", value = "&mut *cancel" },
+]
+
+# NoRender's fog, after Horizon's own fog calculation and before upload.
+[[injection]]
+id = "norender_fog"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_render_fog"
+helper = "norender_fog.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "_partial", ty = "f32", value = "partial" },
+  { name = "_camera", ty = "[f64; 3]", value = "camera" },
+  { name = "fog_type", ty = "horizon_client::fog::FogType", value = "fog_type" },
+  { name = "fog", ty = "&mut horizon_client::fog::FogData", value = "&mut *fog" },
+]
+
+# NoRender's camera overlays, the underwater tint and the fire. `Game::screen_quads`
+# publishes the switches and the render crate's `ScreenEffects::build` reads them:
+# the two are different crates, and the builder has no access to the mod registry.
+# The builder is a `HEAD` because the quad list it returns cannot be post-processed
+# (its tail holds a closure, which RETURN refuses), so the water and fire arms are
+# skipped by rebuilding the same frame with those two inputs cleared.
+[[injection]]
+id = "norender_overlay_publish"
+kind = "HEAD"
+target = "horizon_client::game::render_tick::Game<'_>::screen_quads"
+helper = "norender_overlay_publish.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+]
+
+[[injection]]
+id = "norender_overlay"
+kind = "HEAD"
+cancellable = true
+target = "horizon_client_render::screen_effects::ScreenEffects::build"
+helper = "norender_overlay.rs"
+bindings = [
+  { name = "effects", ty = "&crate::screen_effects::ScreenEffects", value = "self" },
+  { name = "input", ty = "&crate::screen_effects::ScreenInputs<'_>", value = "input" },
+]
+
+# NoRender's particles: publish the switch on tick, then skip the particle
+# engine's geometry when it is on. It reads a shared atomic because the
+# engine lives in the render crate and cannot see the mod registry.
+[[injection]]
+id = "norender_particles"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_tick"
+helper = "norender_particles.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+[[injection]]
+id = "norender_particles_render"
+kind = "HEAD"
+cancellable = true
+target = "horizon_client_render::particles::ParticleEngine::render"
+helper = "norender_particles_render.rs"
+bindings = []
+
+[[injection]]
+id = "norender_particles_culled"
+kind = "HEAD"
+cancellable = true
+target = "horizon_client_render::particles::ParticleEngine::render_culled"
+helper = "norender_particles_culled.rs"
+bindings = []
+
+# NoRender's glowing outlines, first-person hand and item-frame items. Its
+# name tags cancel `name_tag_geometry` in `nametags_hide`: the per-tag hook
+# is skipped when only a mixin mod is loaded, because it counts runtime mods.
+[[injection]]
+id = "norender_outline"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_entity_outline"
+helper = "norender_outline.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "outline", ty = "&mut Option<u32>", value = "&mut *outline" },
+]
+
+# Chams' outline: the game's own glowing pass, in the Chams colour. A higher
+# priority than `norender_outline` (100) puts it first, so NoRender's glowing
+# switch still clears what Chams asked for.
+[[injection]]
+id = "chams_outline"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_entity_outline"
+priority = 110
+helper = "chams_outline.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "entity_id", ty = "u32", value = "entity_id" },
+  { name = "kind", ty = "&str", value = "kind" },
+  { name = "outline", ty = "&mut Option<u32>", value = "&mut *outline" },
+]
+
+[[injection]]
+id = "norender_hand"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_render_hand"
+helper = "norender_hand.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "canceled", ty = "&mut bool", value = "&mut *canceled" },
+]
+
+# ViewModel's pose: the seven numbers the game composes onto a hand before it
+# draws the hand and the item in it, plus the stack that tells an arm from a
+# hand holding something.
+[[injection]]
+id = "viewmodel_pose"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_render_hand_pose"
+helper = "viewmodel_pose.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "hand", ty = "horizon_client::first_person::Hand", value = "hand" },
+  { name = "stack", ty = "Option<&horizon_client::items::ItemStack>", value = "stack" },
+  { name = "x", ty = "&mut f32", value = "&mut *x" },
+  { name = "y", ty = "&mut f32", value = "&mut *y" },
+  { name = "z", ty = "&mut f32", value = "&mut *z" },
+  { name = "pitch", ty = "&mut f32", value = "&mut *pitch" },
+  { name = "yaw", ty = "&mut f32", value = "&mut *yaw" },
+  { name = "roll", ty = "&mut f32", value = "&mut *roll" },
+  { name = "scale", ty = "&mut f32", value = "&mut *scale" },
+]
+
+# Animations' extra arc: the same pose, leaning the way the swing already
+# leans. It runs after ViewModel's so the two offsets add up in the order the
+# module list reads.
+[[injection]]
+id = "animations_pose"
+kind = "HEAD"
+priority = 95
+target = "horizon_client::game::native_hooks::Game<'_>::native_render_hand_pose"
+helper = "animations_pose.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "swing", ty = "f32", value = "swing" },
+  { name = "z", ty = "&mut f32", value = "&mut *z" },
+  { name = "pitch", ty = "&mut f32", value = "&mut *pitch" },
+  { name = "roll", ty = "&mut f32", value = "&mut *roll" },
+]
+
+# Animations' swing speed: the swing's own duration, one tick before `tick_hand`
+# advances it.
+[[injection]]
+id = "animations_tick"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_tick"
+helper = "animations_tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Animations' eating animation: the pose the hand holds a used item in.
+[[injection]]
+id = "animations_use"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_use_animation"
+helper = "animations_use.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "animation", ty = "&mut horizon_world::consumable::UseAnimation", value = "&mut *animation" },
+]
+
+# Ambience's time and weather: once a frame, after the ticks and before the
+# frame draws, so a server's time update cannot show for a frame every second.
+[[injection]]
+id = "ambience_frame"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_frame"
+helper = "ambience_frame.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Ambience's fog: the colour and the two distances, before NoRender's fog modes
+# (priority 100) so its "clear" still has the last word on hiding the fog.
+[[injection]]
+id = "ambience_fog"
+kind = "HEAD"
+priority = 110
+target = "horizon_client::game::native_hooks::Game<'_>::native_render_fog"
+helper = "ambience_fog.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "fog_type", ty = "horizon_client::fog::FogType", value = "fog_type" },
+  { name = "fog", ty = "&mut horizon_client::fog::FogData", value = "&mut *fog" },
+]
+
+# Blink's tick: starts and ends a hold and releases the pulse timer's burst.
+# Before the chain's own flush (priority 100) so a burst never lands after the
+# packet of the tick that released it.
+[[injection]]
+id = "blink_tick"
+kind = "HEAD"
+priority = 105
+target = "horizon_client::game::native_hooks::Game<'_>::native_tick"
+helper = "blink_tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Blink's teleport: the server is moving the player, so the held trail is
+# behind the new position and is dropped rather than replayed.
+[[injection]]
+id = "blink_teleport"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_teleport"
+helper = "blink_teleport.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Blink's marker: the player's filled figure where the server last had them.
+[[injection]]
+id = "blink_draw"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_world_primitives"
+helper = "blink_draw.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "partial", ty = "f32", value = "partial" },
+  { name = "camera", ty = "[f64; 3]", value = "camera" },
+  { name = "primitives", ty = "&mut horizon_client::world_primitives::WorldPrimitives", value = "&mut *primitives" },
+]
+
+[[injection]]
+id = "norender_item_frame"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_render_item_in_frame"
+helper = "norender_item_frame.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "canceled", ty = "&mut bool", value = "&mut *canceled" },
+]
+
+# NoRender's mobs: skip their vanilla models.
+[[injection]]
+id = "norender_mob"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_mob_submit"
+helper = "norender_mob.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "drawn", ty = "&mut bool", value = "&mut *drawn" },
+]
+
+# The GUI and ArrayList, in the HUD layer.
+[[injection]]
+id = "hud"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_hud"
+helper = "hud.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "batch", ty = "&mut horizon_client::hud::HudBatch", value = "&mut *batch" },
+  { name = "corners", ty = "&mut horizon_client::extras_hud::Corners", value = "&mut *corners" },
+]
+
+# ChestStealer's highlight and progress bar. The slot pass and the hover
+# highlight both contain macros the applier cannot hook, so this rides the
+# carried-stack draw: it runs after the items and before the cursor stack.
+[[injection]]
+id = "cheststealer_slots"
+kind = "HEAD"
+target = "horizon_client::game::Game<'_>::draw_carried"
+helper = "cheststealer_slots.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "batch", ty = "&mut horizon_client::hud::HudBatch", value = "&mut *batch" },
+]
+
+# NameTags draws the only tag layer while it is on: cancel Horizon's own
+# name tags, which would otherwise show through (players, named mobs and
+# holograms share this one function).
+[[injection]]
+id = "nametags_hide"
+kind = "HEAD"
+cancellable = true
+target = "horizon_client::game::names::Game<'_>::name_tag_geometry"
+helper = "nametags_hide.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+]
+
+# The title screen's logo, drawn over the vanilla logo and its edition
+# banner. `Title::draw` itself has macros, so this watches every styled text
+# call instead and draws on the main menu's version line.
+[[injection]]
+id = "title"
+kind = "HEAD"
+target = "horizon_client_render::hud::HudBatch::text_styled"
+helper = "title_hook.rs"
+bindings = [
+  { name = "batch", ty = "&mut crate::hud::HudBatch", value = "&mut *self" },
+  { name = "atlas", ty = "&crate::hud::HudAtlas", value = "atlas" },
+  { name = "text", ty = "&crate::text::Text", value = "text" },
+  { name = "y", ty = "f32", value = "y" },
+]
+
+# /clickgui and /fullbright.
+[[injection]]
+id = "command"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_command"
+helper = "command.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "command", ty = "&str", value = "command" },
+  { name = "ran", ty = "&mut bool", value = "&mut *ran" },
+]
+
+# Options > Mods: the row and its rebindable key.
+[[injection]]
+id = "list"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_mods"
+helper = "list.rs"
+bindings = [
+  { name = "mods", ty = "&mut Vec<crate::game::native_hooks::NativeMod>", value = "&mut *mods" },
+]
+
+# Options > Mods > ClickGUI > Settings.
+[[injection]]
+id = "settings"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_settings"
+helper = "settings.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "mod_id", ty = "&str", value = "mod_id" },
+  { name = "buttons", ty = "&mut Vec<String>", value = "&mut *buttons" },
+]
+
+[[injection]]
+id = "click"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_settings_click"
+helper = "click.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "mod_id", ty = "&str", value = "mod_id" },
+  { name = "button", ty = "usize", value = "button" },
+]
+
+# NoFall plans this tick's movement packet before the sender builds it, and
+# applies the mode's client-side effects (fall distance, velocity, use,
+# mount).
+[[injection]]
+id = "nofall_prepare"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_send_state"
+helper = "nofall_prepare.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "input", ty = "u8", value = "input" },
+]
+
+# NoFall, Fly, Step, Speed and Criticals rewrite the movement packet the
+# position sender produced (ground flag, position offset), or drop it. The
+# sender's own call site and `PositionSender::update` both sit in functions
+# horizon-mixins rejects (nested `use` items there, a closure in the sender),
+# so the rewrite moved to `Game::send`, the one place the packet leaves.
+#
+# The mark says which packet is the tick's: `spoof_arm` runs at the head of
+# `remote_send_state` with the lowest priority, so it follows the hooks that
+# send the modes' extra packets.
+[[injection]]
+id = "spoof_arm"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_send_state"
+priority = 0
+helper = "spoof_arm.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+]
+
+# The marked movement packet goes out spoofed (or not at all); every other
+# packet is sent untouched. `Game::send` is `&self` and closure-free, so a
+# cancellable HEAD is the one hook kind that fits it.
+[[injection]]
+id = "spoof_send"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::send"
+cancellable = true
+helper = "spoof_send.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+  { name = "packet", ty = "&horizon_protocol::packets::play::Serverbound", value = "&packet" },
+]
+
+# A tick whose sender produced no packet (no move, no turn, no ground change)
+# never reaches `spoof_send`, and Criticals' force modes still have to answer.
+# `native_tick` runs once a tick, after the movement send and before the tick's
+# `ClientTickEnd`, so the chain runs exactly once per tick either way.
+[[injection]]
+id = "spoof_flush"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_tick"
+helper = "spoof_flush.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+]
+
+# Criticals sends its fake positions at the attack click, before the attack
+# packet goes out (the movement packet follows later in the tick). Velocity's
+# Intave mode also reads the hit here, so the same helper calls both.
+[[injection]]
+id = "criticals_attack"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_start_attack"
+helper = "criticals_attack.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# `handle_packet` is a macro, so Velocity cannot read the velocity packets.
+# Instead it remembers, at the head of `remote_send_state` (after the tick's
+# physics, before the movement packet), the velocity the next tick starts with.
+[[injection]]
+id = "velocity_snapshot"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_send_state"
+helper = "velocity_snapshot.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+]
+
+# Velocity remembers an explosion's push before `remote_explode` adds it, so
+# the tick can take it back out and re-apply it scaled.
+[[injection]]
+id = "velocity_explode"
+kind = "HEAD"
+target = "horizon_client::game::lan_particles::Game<'_>::remote_explode"
+helper = "velocity_explode.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "packet", ty = "&horizon_protocol::packets::play::Explode", value = "p" },
+]
+
+# Velocity rewrites the applied velocity at the head of the tick, before the
+# player's physics move.
+[[injection]]
+id = "velocity_tick"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::tick_remote_level"
+helper = "velocity_tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Speed shapes the velocity at the head of the tick, before the input is
+# assembled and the physics move. It runs after Velocity, so it sees the
+# velocity the knockback left.
+[[injection]]
+id = "speed_tick"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::tick_remote_level"
+helper = "speed_tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Fly shapes the velocity at the head of the tick, before the input and
+# physics move, and gates the vanilla travel input for the modes that set
+# their own horizontal speed. It runs before Speed, so a Fly mode and a Speed
+# mode on together take the Speed mode's motion.
+[[injection]]
+id = "fly_tick"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::tick_remote_level"
+helper = "fly_tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Fly sends its extra position and status packets after the tick's physics and
+# before the movement packet is built, where the references send theirs.
+[[injection]]
+id = "fly_confirm"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_send_state"
+helper = "fly_confirm.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Fly remembers the velocity after the tick's physics, so the next tick sees a
+# server SetEntityMotion (the damage-gated mode).
+[[injection]]
+id = "fly_snapshot"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_send_state"
+helper = "fly_snapshot.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+]
+
+# Speed remembers the velocity after the tick's physics (and the Vulcan packet
+# flags), before the movement packet is built.
+[[injection]]
+id = "speed_snapshot"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_send_state"
+helper = "speed_snapshot.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+]
+
+# Step raises the step height and starts its jump sequences at the head of the
+# tick, before the input and physics move. It runs after Speed, so the two
+# modules' jumps only pass the same-tick jump guard, not suppress each other.
+[[injection]]
+id = "step_tick"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::tick_remote_level"
+helper = "step_tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Step confirms a step after the tick's physics, before the movement packet
+# is built, which is where the references send their fake positions.
+[[injection]]
+id = "step_confirm"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_send_state"
+helper = "step_confirm.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Phase moves the player after the tick's physics and before the movement
+# packet is built, which is where the references' PreMotion hooks run. It runs
+# after NoFall, Fly, Step and Speed (priority 50 against their 100) so their
+# rewrites land first and this has the last word on the position, and before
+# `spoof_arm` (0) so the packet it leaves is the one the chain marks.
+[[injection]]
+id = "phase_move"
+kind = "HEAD"
+priority = 50
+target = "horizon_client::game::remote::Game<'_>::remote_send_state"
+helper = "phase_move.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Phase forgets an attempt in flight when the server moves the player: the
+# bursts and Center's one shot belong to the position the teleport left.
+[[injection]]
+id = "phase_teleport"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_teleport"
+helper = "phase_teleport.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+# Speed resets its counters when the server sets the player back, and records
+# the setback for the modes that count them.
+[[injection]]
+id = "speed_teleport"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_teleport"
+helper = "speed_teleport.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "packet", ty = "&horizon_protocol::packets::play::PlayerPosition", value = "p" },
+]
+
+# NoFall's Cancel mode answers the server's teleport instead of applying it.
+[[injection]]
+id = "nofall_teleport"
+kind = "HEAD"
+cancellable = true
+target = "horizon_client::game::remote::Game<'_>::remote_teleport"
+helper = "nofall_teleport.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "packet", ty = "&horizon_protocol::packets::play::PlayerPosition", value = "p" },
+]
+
+# FastBreak applies its mode (destroy delay, early finish) before the tick's
+# own progress is added, and sends AbortAnother's packet on the call that
+# completes the break. `remote_mining` holds closures, which interior hooks
+# reject, so both run here.
+[[injection]]
+id = "fastbreak_mining"
+kind = "HEAD"
+target = "horizon_client::game::remote::Game<'_>::remote_mining"
+helper = "fastbreak_mining.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "start", ty = "bool", value = "start" },
+]
